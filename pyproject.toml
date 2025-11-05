@@ -1,0 +1,13 @@
+[project]
+name = "soccer-quiz-backend"
+version = "0.0.0dev1"
+authors = [
+  { name = "Indaiara Bonfim" },
+  { name = "Lucca Lobo" },
+  { name = "Pedro H Costa" },
+  { name = "Rian Vasconscelos" }
+]
+requires-python = ">=3.13"
+dependencies = [
+  # "name == version"
+]
