@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: soccer_quiz
+      MYSQL_USER: soccer_u
+      MYSQL_PASSWORD: soccer_p
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - net
+
+volumes:
+  mysql_data:
+
+networks:
+  net:
+    driver: bridge

@@ -10,4 +10,9 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
   # "name == version"
+  "fastapi[standard] == 0.121.1",
+  "pydantic == 2.12.4",
+  "sqlalchemy == 2.0.44",
+  "pymsql == 1.1.2",
+  "cryptography == 46.0.3"
 ]

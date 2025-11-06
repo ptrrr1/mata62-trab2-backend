@@ -1,0 +1,4 @@
+src/soccer_quiz_backend.egg-info/
+src/*/__pycache__/
+src/__pycache__
+logs/*

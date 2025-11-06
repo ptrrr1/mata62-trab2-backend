@@ -22,8 +22,9 @@ pip install --editable ./pyproject.toml
 3. Executar o código.
 
 ```bash
-python main.py
+python src/main.py
 ```
+
 <!--
 
 ## Requesitos Implmentados
