@@ -19,10 +19,15 @@ source .venv/bin/activate
 pip install --editable ./pyproject.toml
 ```
 
+3. Iniciar container
+```bash
+docker-compose up --detach --build
+```
+
 3. Executar o código.
 
 ```bash
-python src/main.py
+fastapi dev src/main.py
 ```
 
 <!--
