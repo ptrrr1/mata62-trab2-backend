@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import select, insert, update
 
 from custom_types.team_types import TeamRequest
 from model import dbmanager
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class TeamController:
     @staticmethod
-    def get_team_all() -> list:
+    def get_team_all() -> list[Team]:
         s = dbmanager.session
         try:
             q = select(Team)
@@ -62,14 +62,15 @@ class TeamController:
             return r.rowcount > 0
         except Exception as e:
             logger.error(f"Failed to update {id}: {e}")
+            s.rollback()
             
             return False
 
     @staticmethod
-    def delete_team(id: str) -> bool:
+    def delete_team(id: int) -> bool:
         s = dbmanager.session
         try:
-            q = delete(Team).where(Team.id == id)
+            q = update(Team).where(Team.id == id).values(is_active=False)
 
             r = s.execute(q)
             s.commit()
@@ -77,5 +78,6 @@ class TeamController:
             return r.rowcount > 0
         except Exception as e:
             logger.error(f"Failed to delete {id}: {e}")
+            s.rollback()
 
             return False
