@@ -14,7 +14,7 @@ router = APIRouter(prefix="/session", tags=["Sessions"])
 )
 def get_session_all():
     response = SessionController.get_session_all()
-    logger.critical(response[0])
+
     if not response:
         return []
 
