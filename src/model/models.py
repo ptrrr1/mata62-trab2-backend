@@ -11,9 +11,28 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from passlib.context import CryptContext
 
 Base = declarative_base()
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    username = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, nullable=False, server_default=true())
+
+    sessions = relationship("Session", back_populate="user")
+
+    def verify_password(self, password: str) -> bool:
+        return pwd_context.verify(password, self.hashed_password)
+    
+    @staticmethod
+    def hash_password(password: str) -> str:
+        return pwd_context.hash(password)
 
 class Team(Base):
     __tablename__ = "teams"
@@ -64,12 +83,12 @@ class Session(Base):
     __tablename__ = "sessions"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    # user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     quiz_id = Column(Integer, ForeignKey("quizzes.id"), nullable=False)
     start_time = Column(
         TIMESTAMP, nullable=False, server_default=func.current_timestamp()
     )
     end_time = Column(TIMESTAMP, nullable=True, default=None)
 
-    # user = relationship("User", back_populates="users")
+    user = relationship("User", back_populates="users")
     quiz = relationship("Quiz", back_populates="session")
