@@ -7,15 +7,15 @@ authors = [
   { name = "Pedro H Costa" },
   { name = "Rian Vasconscelos" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
   # "name == version"
   "fastapi[standard] == 0.121.1",
   "pydantic == 2.12.4",
   "sqlalchemy == 2.0.44",
-  "pymsql == 1.1.2",
-  "cryptography == 46.0.3"
+  "pymysql == 1.1.2",
+  "cryptography == 46.0.3",
   "passlib[bcrypt] == 1.7.4",
   "pyjwt == 2.8.0",
-  "python-multipart == 0.0.9"
+  "python-multipart >= 0.0.18"
 ]

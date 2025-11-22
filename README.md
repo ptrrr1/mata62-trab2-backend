@@ -16,7 +16,7 @@ source .venv/bin/activate
 2. Instalar as bibliotecas necessárias.
 
 ```bash
-pip install --editable ./pyproject.toml
+pip install --editable .
 ```
 
 3. Iniciar container
