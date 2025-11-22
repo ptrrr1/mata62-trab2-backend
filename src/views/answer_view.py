@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 
 from controllers.answer_controller import AnswerController
 from custom_types.answer_types import AnswerResponse, AnswerRequest
