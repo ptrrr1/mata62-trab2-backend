@@ -24,11 +24,11 @@ class SessionController:
             return []
 
     @staticmethod
-    def start_session(t: SessionStart) -> Optional[int]:
+    def start_session(t: SessionStart, user_id: int) -> Optional[int]:
         s = dbmanager.session
         try:
             # q = insert(Session).values(quiz_id=t.quiz_id, user_id=t.user_id)
-            q = insert(Session).values(quiz_id=t.quiz_id)
+            q = insert(Session).values(quiz_id=t.quiz_id, user_id=user_id)
 
             r = s.execute(q)
             s.commit()

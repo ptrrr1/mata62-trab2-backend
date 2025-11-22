@@ -10,4 +10,4 @@ class UserResponse(BaseModel):
     is_active: bool
 
     class Config:
-        from_attribute = True
+        from_attributes = True

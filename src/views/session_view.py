@@ -1,9 +1,10 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 
 from controllers.session_controller import SessionController
 from custom_types.session_types import SessionResponse, SessionStart
+from views.auth_view import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/session", tags=["Sessions"])
@@ -31,8 +32,9 @@ def get_session_all():
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, summary="Start a session")
-def start_session(session: SessionStart):
-    response = SessionController.start_session(session)
+def start_session(session: SessionStart, current_user: dict = Depends(get_current_user)):
+    user_id = current_user['id']
+    response = SessionController.start_session(session, user_id)
 
     if not response:
         raise HTTPException(status_code=400, detail="Failed to start session")
@@ -41,7 +43,7 @@ def start_session(session: SessionStart):
 
 
 @router.patch("/id/{id}", summary="End a session")
-def end_session(id: int):
+def end_session(id: int, current_user: dict = Depends(get_current_user)):
     response = SessionController.end_session(id)
 
     if not response:

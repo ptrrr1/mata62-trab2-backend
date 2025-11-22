@@ -1,14 +1,16 @@
 import os
 import jwt
+import uuid
 from datetime import datetime, timedelta
 from typing import Optional
 
 from model.manager import DBManager
-from model.user import User
+from model.models import User, TokenBlockList
 
 SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "heyho_0102")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 1
 
 class AuthController:
 
@@ -19,7 +21,7 @@ class AuthController:
             user = session.query(User).filter(User.username == username).first()
             return user
         except Exception as e:
-            print(f"Erro ao buscar usuário: {e}")
+            print(f"Error fetching user: {e}")
             return None
         finally:
             session.close()
@@ -41,7 +43,7 @@ class AuthController:
             return new_user.id
         except Exception as e:
             session.rollback()
-            print(f"Error when creating user: {e}")
+            print(f"Error creating user: {e}")
             return None
         finally:
             session.close()
@@ -59,19 +61,88 @@ class AuthController:
         return user
     
     @staticmethod
-    def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    def create_tokens(username: str, user_id: int) -> dict:
+        token_jti = str(uuid.uuid4())
 
-        to_encode = data.copy()
+        access_payload = {
+            "sub": username,
+            "id": user_id,
+            "type": "access",
+            "jti": token_jti,
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        }
 
-        if expires_delta:
-            expire = datetime.utcnow() + expires_delta
-        else:
-            expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = jwt.encode(access_payload, SECRET_KEY, algorithm=ALGORITHM)
 
-        to_encode.update({"exp": expire})
+        refresh_payload = {
+            "sub": username,
+            "id": user_id,
+            "type": "refresh",
+            "jti": token_jti, 
+            "exp": datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        }
+        refresh_token = jwt.encode(refresh_payload, SECRET_KEY, algorithm=ALGORITHM)
 
-        encoded_jwt = jwt.enconde(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-        return encoded_jwt
+        return {"access_token": access_token, "refresh_token": refresh_token}
+
+    @staticmethod
+    def refresh_access_token(refresh_token: str) -> Optional[dict]:
+        try:
+            payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+            
+            if payload.get("type") != "refresh":
+                return None
+            
+            jti = payload.get("jti")
+            if AuthController.is_jti_blacklisted(jti): 
+                return None
+
+            new_access_payload = {
+                "sub": payload["sub"],
+                "id": payload["id"],
+                "type": "access",
+                "jti": jti,
+                "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            }
+            new_access_token = jwt.encode(new_access_payload, SECRET_KEY, algorithm=ALGORITHM)
+            
+            return {"access_token": new_access_token}
+        except Exception as e:
+            print(f"Error refreshing token: {e}")
+            return None
+
+
+    @staticmethod
+    def revoke_token(token: str) -> bool:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            jti = payload.get("jti")
+            
+            session = dbmanager.get_session()
+            if session.query(TokenBlocklist).filter_by(jti=jti).first():
+                session.close()
+                return True
+
+            block = TokenBlocklist(jti=jti)
+            session.add(block)
+            session.commit()
+            session.close()
+            return True
+        except Exception as e:
+            print(f"Error revoking token: {e}")
+            return False
+
+    @staticmethod
+    def is_jti_blacklisted(jti: str) -> bool:
+        session = dbmanager.get_session()
+        try:
+            exists = session.query(TokenBlocklist).filter_by(jti=jti).first()
+            return exists is not None
+        except Exception as e:
+            print(f"Error checking blocklist: {e}")
+            return False
+        finally:
+            session.close()
     
-    
+
 
