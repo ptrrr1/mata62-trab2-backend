@@ -17,7 +17,7 @@ class AuthController:
     @staticmethod
     def get_user_by_name(username: str) -> Optional[User]:
         try:
-            sessio = dbmanager.get_session()
+            session = dbmanager.get_session()
             user = session.query(User).filter(User.username == username).first()
             return user
         except Exception as e:
@@ -48,7 +48,7 @@ class AuthController:
         finally:
             session.close()
 
-    @staticmethoddef 
+    @staticmethod 
     def authenticate_user(username: str, password: str) -> Optional[User]:
 
         user = AuthController.get_user_by_name(username)
@@ -136,7 +136,7 @@ class AuthController:
     def is_jti_blacklisted(jti: str) -> bool:
         session = dbmanager.get_session()
         try:
-            exists = session.query(TokenBlocklist).filter_by(jti=jti).first()
+            exists = session.query(TokenBlockList).filter_by(jti=jti).first()
             return exists is not None
         except Exception as e:
             print(f"Error checking blocklist: {e}")
