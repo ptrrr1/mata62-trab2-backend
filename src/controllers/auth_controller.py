@@ -29,13 +29,13 @@ class AuthController:
                 session.close()
     
     @staticmethod
-    def create_user(username: str, password: str) -> Optional[User]:
+    def create_user(username: str, password: str, role: str = "user") -> Optional[User]:
         if AuthController.get_user_by_name(username):
             return None
         
         hashed_pass = User.hash_password(password)
 
-        new_user = User(username=username, hashed_password = hashed_pass)
+        new_user = User(username=username, hashed_password = hashed_pass, role=role)
 
         session = None
 
@@ -66,12 +66,13 @@ class AuthController:
         return user
     
     @staticmethod
-    def create_tokens(username: str, user_id: int) -> dict:
+    def create_tokens(username: str, user_id: int, role: str) -> dict:
         token_jti = str(uuid.uuid4())
 
         access_payload = {
             "sub": username,
             "id": user_id,
+            "role": role,
             "type": "access",
             "jti": token_jti,
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -82,6 +83,7 @@ class AuthController:
         refresh_payload = {
             "sub": username,
             "id": user_id,
+            "role": role,
             "type": "refresh",
             "jti": token_jti, 
             "exp": datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
@@ -101,10 +103,13 @@ class AuthController:
             jti = payload.get("jti")
             if AuthController.is_jti_blacklisted(jti): 
                 return None
+            
+            role = payload.get("role", "user")
 
             new_access_payload = {
                 "sub": payload["sub"],
                 "id": payload["id"],
+                "role": role,
                 "type": "access",
                 "jti": jti,
                 "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

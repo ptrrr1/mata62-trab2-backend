@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from controllers.team_controller import TeamController
 from custom_types.team_types import TeamRequest, TeamResponse
 
-from views.auth_view import get_current_user
+from views.auth_view import get_current_user, admin_access_required
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/team", tags=["Teams"])
@@ -32,7 +32,7 @@ def get_team_id(id: int) -> TeamResponse:
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, summary="Create a team")
-def post_team(team: TeamRequest, current_user: dict = Depends(get_current_user)):
+def post_team(team: TeamRequest, current_user: dict = Depends(admin_access_required)):
     response = TeamController.create_team(team)
 
     if not response:
@@ -42,7 +42,7 @@ def post_team(team: TeamRequest, current_user: dict = Depends(get_current_user))
 
 
 @router.patch("/id/{id}", summary="Update a team")
-def patch_team(id: int, team: TeamRequest, current_user: dict = Depends(get_current_user)):
+def patch_team(id: int, team: TeamRequest, current_user: dict = Depends(admin_access_required)):
     response = TeamController.patch_team(id, team)
 
     if not response:
@@ -56,7 +56,7 @@ def patch_team(id: int, team: TeamRequest, current_user: dict = Depends(get_curr
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a team (soft delete)",
 )
-def delete_team(id: int, current_user: dict = Depends(get_current_user)):
+def delete_team(id: int, current_user: dict = Depends(admin_access_required)):
     response = TeamController.delete_team(id)
 
     if not response:

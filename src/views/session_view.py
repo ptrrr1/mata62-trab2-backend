@@ -4,16 +4,16 @@ from fastapi import APIRouter, HTTPException, status, Depends
 
 from controllers.session_controller import SessionController
 from custom_types.session_types import SessionResponse, SessionStart
-from views.auth_view import get_current_user
+from views.auth_view import get_current_user, admin_access_required
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/session", tags=["Sessions"])
 
 
 @router.get(
-    "/all", response_model=list[SessionResponse], summary="Get all active sessions"
+    "/all", response_model=list[SessionResponse], summary="Get all active sessions (Admin only)"
 )
-def get_session_all():
+def get_session_all(current_user: dict = Depends(admin_access_required)):
     response = SessionController.get_session_all()
 
     if not response:

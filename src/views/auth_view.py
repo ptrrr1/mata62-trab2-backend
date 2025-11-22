@@ -39,10 +39,19 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+def admin_access_required(payload: dict = Depends(get_current_user)):
+    role = payload.get("role")
+    if role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator access required"
+        )
+    return payload
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, summary="Register a new user")
 def register_user(user: UserCreate):
-    user_id = AuthController.create_user(username=user.username, password=user.password)
+    user_id = AuthController.create_user(username=user.username, password=user.password, role="user")
     
     if not user_id:
         raise HTTPException(
@@ -63,7 +72,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    tokens = AuthController.create_tokens(username=user.username, user_id=user.id)
+    tokens = AuthController.create_tokens(username=user.username, user_id=user.id, role=user.role)
     
     return {
         "access_token": tokens["access_token"],
