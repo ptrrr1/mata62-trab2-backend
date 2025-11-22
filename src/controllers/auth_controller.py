@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Optional
 
-from model.manager import DBManager
+from model import dbmanager
 from model.models import User, TokenBlockList
 
 SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "heyho_0102")
@@ -16,15 +16,17 @@ class AuthController:
 
     @staticmethod
     def get_user_by_name(username: str) -> Optional[User]:
+        session = None
         try:
-            session = dbmanager.get_session()
+            session = dbmanager.session
             user = session.query(User).filter(User.username == username).first()
             return user
         except Exception as e:
             print(f"Error fetching user: {e}")
             return None
         finally:
-            session.close()
+            if session:
+                session.close()
     
     @staticmethod
     def create_user(username: str, password: str) -> Optional[User]:
@@ -35,8 +37,10 @@ class AuthController:
 
         new_user = User(username=username, hashed_password = hashed_pass)
 
+        session = None
+
         try:
-            session = dbmanager.get_session()
+            session = dbmanager.session
             session.add(new_user)
             session.commit()
             session.refresh(new_user)
@@ -46,7 +50,8 @@ class AuthController:
             print(f"Error creating user: {e}")
             return None
         finally:
-            session.close()
+            if session:
+                session.close()
 
     @staticmethod 
     def authenticate_user(username: str, password: str) -> Optional[User]:
@@ -114,11 +119,12 @@ class AuthController:
 
     @staticmethod
     def revoke_token(token: str) -> bool:
+        session = None
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             jti = payload.get("jti")
             
-            session = dbmanager.get_session()
+            session = dbmanager.session
             if session.query(TokenBlocklist).filter_by(jti=jti).first():
                 session.close()
                 return True
@@ -131,18 +137,23 @@ class AuthController:
         except Exception as e:
             print(f"Error revoking token: {e}")
             return False
+        finally:
+            if session:
+                session.close()
 
     @staticmethod
     def is_jti_blacklisted(jti: str) -> bool:
-        session = dbmanager.get_session()
+        session = None
         try:
+            session = dbmanager.session
             exists = session.query(TokenBlockList).filter_by(jti=jti).first()
             return exists is not None
         except Exception as e:
             print(f"Error checking blocklist: {e}")
             return False
         finally:
-            session.close()
+            if session:
+                session.close()
     
 
 

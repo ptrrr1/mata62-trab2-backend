@@ -1,3 +1,4 @@
+import bcrypt
 from sqlalchemy import (
     TIMESTAMP,
     Boolean,
@@ -11,11 +12,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from passlib.context import CryptContext
 
 Base = declarative_base()
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class User(Base):
     __tablename__ = "users"
@@ -28,11 +26,16 @@ class User(Base):
     sessions = relationship("Session", back_populates="user")
 
     def verify_password(self, password: str) -> bool:
-        return pwd_context.verify(password, self.hashed_password)
+        return bcrypt.checkpw(
+            password.encode('utf-8'), 
+            self.hashed_password.encode('utf-8')
+        )
     
     @staticmethod
     def hash_password(password: str) -> str:
-        return pwd_context.hash(password)
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8') # Decodifica bytes para string
 
 class Team(Base):
     __tablename__ = "teams"
@@ -90,7 +93,7 @@ class Session(Base):
     )
     end_time = Column(TIMESTAMP, nullable=True, default=None)
 
-    user = relationship("User", back_populates="users")
+    user = relationship("User", back_populates="sessions")
     quiz = relationship("Quiz", back_populates="session")
 
 class TokenBlockList(Base):
