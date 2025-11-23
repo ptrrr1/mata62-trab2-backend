@@ -29,18 +29,18 @@ class AuthController:
                 session.close()
     
     @staticmethod
-    def create_user(username: str, password: str, role: str = "user") -> Optional[User]:
-        if AuthController.get_user_by_name(username):
-            return None
-        
-        hashed_pass = User.hash_password(password)
-
-        new_user = User(username=username, hashed_password = hashed_pass, role=role)
-
+    def create_user(username: str, email:str, password: str, role: str = "user") -> Optional[int]:
         session = None
-
         try:
             session = dbmanager.session
+            existing = session.query(User).filter((User.username == username) | (User.email == email)).first()
+            if existing:
+                return None
+            
+            hashed_pass = User.hash_password(password)
+
+            new_user = User(username=username, hashed_password = hashed_pass, role=role)
+
             session.add(new_user)
             session.commit()
             session.refresh(new_user)
@@ -49,6 +49,100 @@ class AuthController:
             session.rollback()
             print(f"Error creating user: {e}")
             return None
+        finally:
+            if session:
+                session.close()
+
+    @staticmethod
+    def update_user(user_id: int, email: Optional[str], password: Optional[str]) -> bool:
+        session = None
+        try:
+            session = dbmanager.session
+            user = session.query(User).filter(User.id == user_id).first()
+            if not user: 
+                return False
+            
+            if email: user.email = email
+            if password: user.hashed_password = User.hash_password(password)
+
+            session.commit()
+            return True
+        except Exception as e:
+            if session: session.rollback()
+            print(f"Update failed: {e}")
+            return False
+        finally:
+            if session:
+                session.close()
+
+    @staticmethod
+    def delete_user(user_id: int) -> bool:
+        session = None
+        try:
+            session = dbmanager.session
+            user = session.query(User).filter(User.id == user_id).first()
+            if user:
+                session.delete(user)
+                session.commit()
+                return True
+            return False
+        except Exception as e:
+            if session: session.rollback()
+            print(f"Delete failed: {e}")
+            return False
+        finally:
+            if session:
+                session.close()
+
+    @staticmethod
+    def send_email_sim(to_email: str, subject: str, body: str):
+        print("\n" + "="*40)
+        print(f"📧 Email Simulado Para: {to_email}")
+        print(f"Assunto: {subject}")
+        print(f"Mensagem: {body}")
+        print("="*40 + "\n")
+
+    @staticmethod
+    def generate_reset_token(email: str) -> Optional[str]:
+        session = None
+        try:
+            session = dbmanager.session
+            user = session.query(User).filter(User.email == email).first()
+            if not user: 
+                return None
+            
+            payload = {
+                "sub": user.username,
+                "email": email,
+                "type": "reset",
+                "exp": datetime.utcnow() + timedelta(minutes=15)
+            }
+
+            return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+        finally:
+            if session:
+                session.close()
+
+    @staticmethod
+    def reset_password(token: str, new_password: str) -> bool:
+        session = None
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            if payload.get("type") != "reset":
+                return False
+            
+            email = payload.get("email")
+            session = dbmanager.session
+            user = session.query(User).filter(User.email == email).first()
+
+            if user:
+                user.hashed_password = User.hash_password(new_password)
+                session.commit()
+                return True
+            return False
+        except Exception as e:
+            print(f"Reset error: {e}")
+            return False
         finally:
             if session:
                 session.close()

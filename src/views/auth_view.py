@@ -51,7 +51,7 @@ def admin_access_required(payload: dict = Depends(get_current_user)):
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, summary="Register a new user")
 def register_user(user: UserCreate):
-    user_id = AuthController.create_user(username=user.username, password=user.password, role="user")
+    user_id = AuthController.create_user(username=user.username, email=user.email, password=user.password, role="user")
     
     if not user_id:
         raise HTTPException(
@@ -96,6 +96,43 @@ def refresh_token(request: TokenRefreshRequest):
         "refresh_token": request.refresh_token,
         "token_type": "bearer"
     }
+
+
+@router.post("/forgot-password", summary="Request password reset")
+def forgot_password(request: PasswordResetRequest):
+    token = AuthController.generate_reset_token(request.email)
+    if token:
+        AuthController.send_email_mock(request.email, "Reset Password", f"Token: {token}")
+    return {"message": "If email exists, instructions were sent"}
+
+@router.post("/reset-password", summary="Confirm new password")
+def reset_password(data: PasswordResetConfirm):
+    if not AuthController.reset_password(data.token, data.new_password):
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    return {"message": "Password reset successfully"}
+
+
+@router.get("/me", response_model=UserResponse, summary="Get profile")
+def get_profile(current_user: dict = Depends(get_current_user)):
+    user = AuthController.get_user_by_name(current_user['sub'])
+    return user
+
+@router.patch("/me", summary="Update profile")
+def update_profile(data: UserUpdate, current_user: dict = Depends(get_current_user)):
+    if not AuthController.update_user(current_user['id'], data.email, data.password):
+        raise HTTPException(status_code=400, detail="Update failed")
+    return {"message": "Updated successfully"}
+
+@router.delete("/me", summary="Delete account")
+def delete_account(current_user: dict = Depends(get_current_user)):
+    if not AuthController.delete_user(current_user['id']):
+        raise HTTPException(status_code=500, detail="Delete failed")
+    return {"message": "Account deleted"}
+
+@router.post("/invite", summary="Invite user (REQ 11)")
+def invite_user(invite: InviteRequest, current_user: dict = Depends(get_current_user)):
+    AuthController.send_email_mock(invite.email, "Invitation", f"{current_user['sub']} invited you to play!")
+    return {"message": f"Invitation sent to {invite.email}"}
 
 @router.post("/logout", status_code=status.HTTP_200_OK, summary="Logout (Revoke Token)")
 def logout_user(token: str = Depends(oauth2_scheme)):
