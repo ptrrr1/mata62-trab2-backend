@@ -8,11 +8,11 @@ from controllers.auth_controller import AuthController, ACCESS_TOKEN_EXPIRE_MINU
 from custom_types.user_types import UserCreate
 from custom_types.token_types import Token
 
-logger = loggin.getLogger(__name__)
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, summary="Register new user")
-def register_user(User: UserCreate):
+def register_user(user: UserCreate):
 
     user_id = AuthController.create_user(username=user.username, password=user.password)
 
@@ -32,7 +32,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User or password is incorrect",
-            headers={"WWW-Authenticate": Bearer}
+            headers={"WWW-Authenticate": "Bearer"}
         )
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

@@ -25,7 +25,7 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, nullable=False, server_default=true())
 
-    sessions = relationship("Session", back_populate="user")
+    sessions = relationship("Session", back_populates="user")
 
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.hashed_password)
