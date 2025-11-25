@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlalchemy import select, insert, update
 
-from custom_types.quiz_types import QuizType
+from custom_types.quiz_types import QuizRequest, QuizResponse 
 from model import dbmanager
 from model.models import Quiz
 
@@ -50,7 +50,7 @@ class QuizController:
             return []
 
     @staticmethod
-    def create_quiz(t: QuizType) -> Optional[int]:
+    def create_quiz(t: QuizRequest) -> Optional[int]:
         s = dbmanager.session
         try:
             q = insert(Quiz).values(
