@@ -29,6 +29,14 @@ docker-compose up --detach --build
 ```bash
 fastapi dev src/main.py
 ```
+-----------------------------
+Para rodar app
+docker compose up
+alembic revision --autogenerate -m "nova versão"
+
+
+Para gerar nova versão alembic
+docker exec -it backend_app bash
 
 <!--
 

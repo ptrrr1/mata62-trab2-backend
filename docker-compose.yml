@@ -1,22 +1,39 @@
+version: "3.9"
+
 services:
-  mysql:
+  db:
     image: mysql:8.0
     container_name: mysql_db
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: soccer_quiz
       MYSQL_USER: soccer_u
       MYSQL_PASSWORD: soccer_p
     ports:
       - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
     networks:
-      - net
+      - backend_network
 
-volumes:
-  mysql_data:
+  backend:
+    build:
+      context: .
+    container_name: backend_app
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    working_dir: /app
+    depends_on:
+      - db
+    command: sh /app/wait-for-db.sh     # ⬅️ Agora ele espera o MySQL
+    networks:
+      - backend_network
+    ports:
+    - "8000:8000"
+    environment:
+      - ENV=development
+      - DEBUG=true
 
 networks:
-  net:
+  backend_network:
     driver: bridge

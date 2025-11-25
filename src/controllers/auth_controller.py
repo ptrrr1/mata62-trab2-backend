@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from model.manager import DBManager
-from model.user import User
+from model.models import User
 
 SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "heyho_0102")
 ALGORITHM = "HS256"
@@ -15,7 +15,7 @@ class AuthController:
     @staticmethod
     def get_user_by_name(username: str) -> Optional[User]:
         try:
-            sessio = dbmanager.get_session()
+            session = DBManager.get_session()
             user = session.query(User).filter(User.username == username).first()
             return user
         except Exception as e:
@@ -34,7 +34,7 @@ class AuthController:
         new_user = User(username=username, hashed_password = hashed_pass)
 
         try:
-            session = dbmanager.get_session()
+            session = DBManager.get_session()
             session.add(new_user)
             session.commit()
             session.refresh(new_user)
@@ -46,7 +46,7 @@ class AuthController:
         finally:
             session.close()
 
-    @staticmethoddef 
+    @staticmethod
     def authenticate_user(username: str, password: str) -> Optional[User]:
 
         user = AuthController.get_user_by_name(username)

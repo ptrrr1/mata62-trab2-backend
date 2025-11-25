@@ -17,6 +17,7 @@ Base = declarative_base()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -25,14 +26,15 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, nullable=False, server_default=true())
 
-    sessions = relationship("Session", back_populate="user")
+    sessions = relationship("Session", back_populates="user")
 
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.hashed_password)
-    
+
     @staticmethod
     def hash_password(password: str) -> str:
         return pwd_context.hash(password)
+
 
 class Team(Base):
     __tablename__ = "teams"
@@ -53,6 +55,7 @@ class Quiz(Base):
 
     team = relationship("Team", back_populates="quizzes")
     questions = relationship("Question", back_populates="quiz")
+
     session = relationship("Session", back_populates="quiz")
 
 
@@ -65,6 +68,7 @@ class Question(Base):
     is_active = Column(Boolean, nullable=False, server_default=true())
 
     quiz = relationship("Quiz", back_populates="questions")
+
     answers = relationship("Answer", back_populates="question")
 
 
@@ -90,5 +94,6 @@ class Session(Base):
     )
     end_time = Column(TIMESTAMP, nullable=True, default=None)
 
-    user = relationship("User", back_populates="users")
+    user = relationship("User", back_populates="sessions")
+
     quiz = relationship("Quiz", back_populates="session")
