@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlalchemy import select, insert, update
 
-from custom_types.question_types import Question
+from custom_types.question_types import QuestionRequest,QuestionResponse
 from model import dbmanager
 from model.models import Question, Quiz
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class QuestionController:
     @staticmethod
-    def get_question_all() -> list[Question]:
+    def get_question_all() -> list[QuestionResponse]:
         s = dbmanager.session
         try:
             q = select(Question)
@@ -37,7 +37,7 @@ class QuestionController:
             return None
         
     @staticmethod
-    def get_questions_by_quiz_id(quiz_id: int) -> list[Question]:
+    def get_questions_by_quiz_id(quiz_id: int) -> list[QuestionResponse]:
         s = dbmanager.session
         try:
             q = select(Question).where(
@@ -49,7 +49,7 @@ class QuestionController:
             return []
         
     @staticmethod
-    def get_questions_by_team_id(team_id: int) -> list[Question]:
+    def get_questions_by_team_id(team_id: int) -> list[QuestionResponse]:
         s = dbmanager.session
         try:
             q = (
@@ -65,7 +65,7 @@ class QuestionController:
             return []
 
     @staticmethod
-    def create_question(t: Question) -> Optional[int]:
+    def create_question(t: QuestionRequest) -> Optional[int]:
         s = dbmanager.session
         try:
             q = insert(Question).values(
@@ -85,7 +85,7 @@ class QuestionController:
             return None
 
     @staticmethod
-    def patch_question(id: int, t: Question) -> bool:
+    def patch_question(id: int, t: QuestionRequest) -> bool:
         s = dbmanager.session
         try:
             q = (
