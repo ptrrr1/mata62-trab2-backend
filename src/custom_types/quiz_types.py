@@ -1,6 +1,10 @@
 from pydantic import BaseModel
  
-class QuizType(BaseModel):
-    id: int
+class QuizResponse(BaseModel):
+    id: int | None = None
+    team_id: int
+    is_active: bool
+
+class QuizRequest(BaseModel):
     team_id: int
     is_active: bool
