@@ -7,6 +7,9 @@ from typing import Optional
 from model import dbmanager
 from model.models import User, TokenBlockList
 
+import smtplib
+from email.message import EmailMessage
+
 SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "heyho_0102")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -95,12 +98,65 @@ class AuthController:
                 session.close()
 
     @staticmethod
-    def send_email_sim(to_email: str, subject: str, body: str):
-        print("\n" + "="*40)
-        print(f"📧 Email Simulado Para: {to_email}")
-        print(f"Assunto: {subject}")
-        print(f"Mensagem: {body}")
-        print("="*40 + "\n")
+    def send_email(to_email: str, subject: str, body: str):
+        email_address = "soccerquiz.suporte@gmail.com"
+        email_password = "pqpg uuih evib usrr" 
+
+        msg = EmailMessage()
+        msg.set_content(body, subtype='html')
+        msg['Subject'] = subject
+        msg['From'] = email_address
+        msg['To'] = to_email
+
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                smtp.login(email_address, email_password)
+                smtp.send_message(msg)
+            print(f"Email enviado para {to_email}")
+            return True
+        except Exception as e:
+            print(f"Falha ao enviar email: {e}")
+            return False
+        
+    @staticmethod
+    def password_reset_email(email: str) -> bool:
+        token = AuthController.generate_reset_token(email)
+        if not token:
+            return False
+        
+        reset_link = f"https://www.youtube.com/"
+
+        subject = "Recuperação de Senha - Soccer Quiz"
+        body = f"""
+        <html>
+            <body>
+                <h2>Olá!</h2>
+                <p>Recebemos uma solicitação para redefinir sua senha.</p>
+                <p>Clique no link abaixo para criar uma nova senha:</p>
+                <a href="{reset_link}" style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">Redefinir Minha Senha</a>
+                <p>Este link expira em 15 minutos.</p>
+                <p><small>Se não foi você, ignore este e-mail.</small></p>
+            </body>
+        </html>
+        """
+        return AuthController.send_email(email, subject, body)
+    
+    @staticmethod
+    def invite_email(to_email: str, inviter_username: str) -> bool:
+        register_link = f"https://www.youtube.com/"
+
+        subject = f"{inviter_username} convidou você para o Soccer Quiz!"
+        body = f"""
+        <html>
+            <body>
+                <h2>Vem pro jogo! ⚽</h2>
+                <p><b>{inviter_username}</b> está te desafiando para ver quem sabe mais sobre futebol.</p>
+                <p>Crie sua conta agora e participe dos Quizzes:</p>
+                <a href="{register_link}" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Criar Conta Grátis</a>
+            </body>
+        </html>
+        """
+        return AuthController.send_email(to_email, subject, body)
 
     @staticmethod
     def generate_reset_token(email: str) -> Optional[str]:
@@ -177,8 +233,8 @@ class AuthController:
             "exp": datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
         }
         refresh_token = jwt.encode(refresh_payload, SECRET_KEY, algorithm=ALGORITHM)
-        return {"access_token": access_token, "refresh_token": refresh_token}
-
+        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer" }
+    
     @staticmethod
     def refresh_access_token(refresh_token: str) -> Optional[dict]:
         try:

@@ -57,10 +57,18 @@ def refresh(request: TokenRefreshRequest):
 
 @router.post("/forgot-password", summary="Request password reset")
 def forgot_password(request: PasswordResetRequest):
-    token = AuthController.generate_reset_token(request.email)
-    if token:
-        AuthController.send_email_sim(request.email, "Reset Password", f"Token: {token}")
-    return {"message": "If email exists, instructions were sent."}
+    # CORREÇÃO: Nome do método atualizado para bater com o controller
+    AuthController.password_reset_email(request.email)
+    return {"message": "Se o e-mail estiver cadastrado, as instruções foram enviadas."}
+
+@router.post("/invite", summary="Invite user")
+def invite_user(invite: InviteRequest, current_user: dict = Depends(get_current_user)):
+    inviter_name = current_user['sub'] 
+    # CORREÇÃO: Nome do método atualizado
+    sent = AuthController.invite_email(invite.email, inviter_name)
+    if not sent:
+         raise HTTPException(status_code=500, detail="Erro ao enviar convite. Tente novamente.")
+    return {"message": f"Convite enviado para {invite.email}"}
 
 @router.post("/reset-password", summary="Confirm new password")
 def reset_password(data: PasswordResetConfirm):
@@ -84,12 +92,12 @@ def delete_account(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="Delete failed")
     return {"message": "Account deleted"}
 
-@router.post("/invite", summary="Invite user")
-def invite_user(invite: InviteRequest, current_user: dict = Depends(get_current_user)):
-    AuthController.send_email_sim(invite.email, "Invitation", f"{current_user['sub']} invited you to play!")
-    return {"message": f"Invitation sent to {invite.email}"}
-
 @router.post("/logout", status_code=200)
 def logout(token: str = Depends(oauth2_scheme)):
     AuthController.revoke_token(token)
     return {"message": "Logged out"}
+
+# NOVO: Rota para listar usuários (Útil para Admin)
+@router.get("/users", response_model=list[UserResponse], summary="List all users (Admin only)")
+def list_users(current_user: dict = Depends(admin_access_required)):
+    return AuthController.get_all_users()
