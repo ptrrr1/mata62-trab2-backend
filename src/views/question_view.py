@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, HTTPException, status
 
 from controllers.question_controller import QuestionController
-from custom_types.question_types import Question
+from custom_types.question_types import QuestionRequest, QuestionResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/question", tags=["Questions"])
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/question", tags=["Questions"])
 
 @router.get(
     "/qid/{id}",
-    response_model=list[Question],
+    response_model=list[QuestionResponse],
     summary="Get questions by id",
 )
 def get_question_by_id(qid: int):
@@ -22,14 +22,14 @@ def get_question_by_id(qid: int):
 
     return response
 
-@router.get("/quiz/{quiz_id}", response_model=list[Question], summary="Get all questions for a specific Quiz")
+@router.get("/quiz/{quiz_id}", response_model=list[QuestionResponse], summary="Get all questions for a specific Quiz")
 def get_questions_by_quiz(quiz_id: int):
     response = QuestionController.get_questions_by_quiz_id(quiz_id)
     if not response:
         return []
     
     return [
-        Question(id=t.id, quiz_id=t.quiz_id, text=t.text, is_active=t.is_active)
+        QuestionResponse(id=t.id, quiz_id=t.quiz_id, text=t.text, is_active=t.is_active)
         for t in response
     ]
 
@@ -37,7 +37,7 @@ def get_questions_by_quiz(quiz_id: int):
 
 @router.get(
     "/team/{team_id}", 
-    response_model=list[Question], 
+    response_model=list[QuestionResponse], 
     summary="Get all questions for a specific Team"
 )
 def get_questions_by_team(team_id: int):
@@ -47,13 +47,13 @@ def get_questions_by_team(team_id: int):
         return []
 
     return [
-        Question(id=t.id, quiz_id=t.quiz_id, text=t.text, is_active=t.is_active)
+        QuestionResponse(id=t.id, quiz_id=t.quiz_id, text=t.text, is_active=t.is_active)
         for t in response
     ]
 
 @router.get(
     "/allquestions",
-    response_model=list[Question],
+    response_model=list[QuestionResponse],
     summary="Get all questions",
 )
 def get_question_all():
@@ -63,13 +63,13 @@ def get_question_all():
         return []
 
     return [
-        Question(id=t.id, quiz_id=t.quiz_id, text=t.text, is_active=t.is_active)
+        QuestionResponse(id=t.id, quiz_id=t.quiz_id, text=t.text, is_active=t.is_active)
         for t in response
     ]
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, summary="Create an question")
-def create_question(question: Question):
+def create_question(question: QuestionRequest):
     response = QuestionController.create_question(question)
 
     if not response:
@@ -79,7 +79,7 @@ def create_question(question: Question):
 
 
 @router.patch("/id/{id}", summary="Update an question")
-def patch_question(id: int, question: Question):
+def patch_question(id: int, question: QuestionRequest):
     response = QuestionController.patch_question(id, question)
 
     if not response:

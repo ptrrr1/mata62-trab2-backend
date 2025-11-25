@@ -16,7 +16,7 @@ class DBManager:
         # TODO: Move to .env file
         self._user = "soccer_u"
         self._password = "soccer_p"
-        self._host = "localhost"
+        self._host = "db"
         self._port = "3306"
         self._database = "soccer_quiz"
 
