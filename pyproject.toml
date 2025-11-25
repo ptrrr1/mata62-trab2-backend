@@ -17,5 +17,6 @@ dependencies = [
   "cryptography == 46.0.3",
   "bcrypt == 4.2.0",
   "pyjwt == 2.8.0",
-  "python-multipart >= 0.0.18"
+  "python-multipart >= 0.0.18",
+  "alembic == 1.17.2"
 ]
