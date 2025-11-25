@@ -32,6 +32,20 @@ class AuthController:
                 session.close()
 
     @staticmethod
+    def get_all_users() -> list[User]:
+        session = None
+        try:
+            session = dbmanager.session
+            users = session.query(User).all()
+            return users
+        except Exception as e:
+            print(f"Error fetching users: {e}")
+            return []
+        finally:
+            if session:
+                session.close()
+
+    @staticmethod
     def create_user(username: str, email:str, password: str, role: str = "user") -> Optional[int]:
         session = None
         try:

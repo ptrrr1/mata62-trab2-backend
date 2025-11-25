@@ -39,6 +39,7 @@ class User(Base):
         hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
         return hashed.decode('utf-8') # Decodifica bytes para string
 
+
 class Team(Base):
     __tablename__ = "teams"
 
@@ -58,6 +59,7 @@ class Quiz(Base):
 
     team = relationship("Team", back_populates="quizzes")
     questions = relationship("Question", back_populates="quiz")
+
     session = relationship("Session", back_populates="quiz")
 
 
@@ -70,6 +72,7 @@ class Question(Base):
     is_active = Column(Boolean, nullable=False, server_default=true())
 
     quiz = relationship("Quiz", back_populates="questions")
+
     answers = relationship("Answer", back_populates="question")
 
 
