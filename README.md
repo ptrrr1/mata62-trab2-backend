@@ -33,7 +33,7 @@ docker-compose up --detach --build
 ```2. alembic upgrade head```
 
 
-## Para gerar nova versão de banco
+## Para gerar nova versão alembic
 ```bash
 docker exec -it backend_app bash
 alembic revision --autogenerate -m "nova versão"
