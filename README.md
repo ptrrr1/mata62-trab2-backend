@@ -25,24 +25,15 @@ docker-compose up --detach --build
 ```
 
 -----------------------------
-4. Carregar a versão do alembic
-docker exec -it backend_app bash
-alembic upgrade head
+## Carregar a versão do alembic
+
+
+```1. docker exec -it backend_app bash```
+
+```2. alembic upgrade head```
 
 
 ## Para gerar nova versão de banco
+```bash
 docker exec -it backend_app bash
 alembic revision --autogenerate -m "nova versão"
-
-
-<!--
-
-## Requesitos Implmentados
-
-1. ...
-
-## Alterações de Projeto
-
-1. [ADR??](link aqui)
-
--->
