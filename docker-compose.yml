@@ -1,6 +1,21 @@
 version: "3.9"
 
 services:
+  ngrok:
+    image: ngrok/ngrok:latest
+    command:
+      - "http"
+      - "backend:8000"
+      - "--log=stdout"
+    ports:
+      - "4040:4040"
+    depends_on:
+      - backend
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    networks:
+      - backend_network
+
   db:
     image: mysql:8.0
     container_name: mysql_db
