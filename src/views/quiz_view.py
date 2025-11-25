@@ -24,6 +24,20 @@ def get_quiz_by_quiz(qid: int):
         QuizType(id=t.id, team_id=t.team_id, is_active=t.is_active) for t in response
     ]
 
+@router.get(
+    "/team/{team_id}",
+    response_model=list[QuizType],
+    summary="Get all quizs by Team ID"
+)
+def get_quiz_all_by_team(team_id: int):
+    response = QuizController.get_quiz_all_by_team_id(team_id)
+
+    if not response:
+        return []
+    
+    return [
+        QuizType(id=t.id, team_id=t.team_id, is_active=t.is_active) for t in response
+    ]
 
 @router.post("/", status_code=status.HTTP_201_CREATED, summary="Create an quiz")
 def create_quiz(quiz: QuizType):

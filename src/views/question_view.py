@@ -22,6 +22,34 @@ def get_question_by_id(qid: int):
 
     return response
 
+@router.get("/quiz/{quiz_id}", response_model=list[Question], summary="Get all questions for a specific Quiz")
+def get_questions_by_quiz(quiz_id: int):
+    response = QuestionController.get_questions_by_quiz_id(quiz_id)
+    if not response:
+        return []
+    
+    return [
+        Question(id=t.id, quiz_id=t.quiz_id, text=t.text, is_active=t.is_active)
+        for t in response
+    ]
+
+# ... imports ...
+
+@router.get(
+    "/team/{team_id}", 
+    response_model=list[Question], 
+    summary="Get all questions for a specific Team"
+)
+def get_questions_by_team(team_id: int):
+    response = QuestionController.get_questions_by_team_id(team_id)
+
+    if not response:
+        return []
+
+    return [
+        Question(id=t.id, quiz_id=t.quiz_id, text=t.text, is_active=t.is_active)
+        for t in response
+    ]
 
 @router.get(
     "/allquestions",

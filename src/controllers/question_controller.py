@@ -5,7 +5,7 @@ from sqlalchemy import select, insert, update
 
 from custom_types.question_types import Question
 from model import dbmanager
-from model.models import Question
+from model.models import Question, Quiz
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +35,34 @@ class QuestionController:
             logger.error(f"Failed to fetch Quiz: {e}")
 
             return None
+        
+    @staticmethod
+    def get_questions_by_quiz_id(quiz_id: int) -> list[Question]:
+        s = dbmanager.session
+        try:
+            q = select(Question).where(
+                Question.quiz_id == quiz_id,
+            )
+            return s.scalars(q).all()
+        except Exception as e:
+            logger.error(f"Failed to fetch questions for quiz {quiz_id}: {e}")
+            return []
+        
+    @staticmethod
+    def get_questions_by_team_id(team_id: int) -> list[Question]:
+        s = dbmanager.session
+        try:
+            q = (
+                select(Question)
+                .join(Quiz, Question.quiz_id == Quiz.id)
+                .where(
+                    Quiz.team_id == team_id,
+                )
+            )
+            return s.scalars(q).all()
+        except Exception as e:
+            logger.error(f"Failed to fetch questions for team {team_id}: {e}")
+            return []
 
     @staticmethod
     def create_question(t: Question) -> Optional[int]:
