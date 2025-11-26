@@ -1,3 +1,4 @@
+import bcrypt
 from sqlalchemy import (
     TIMESTAMP,
     Boolean,
@@ -11,29 +12,32 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from passlib.context import CryptContext
 
 Base = declarative_base()
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     username = Column(String(255), unique=True, index=True, nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    role = Column(String(50), nullable=False, server_default="user")
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, nullable=False, server_default=true())
 
     sessions = relationship("Session", back_populates="user")
 
     def verify_password(self, password: str) -> bool:
-        return pwd_context.verify(password, self.hashed_password)
-
+        return bcrypt.checkpw(
+            password.encode('utf-8'), 
+            self.hashed_password.encode('utf-8')
+        )
+    
     @staticmethod
     def hash_password(password: str) -> str:
-        return pwd_context.hash(password)
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8') # Decodifica bytes para string
 
 
 class Team(Base):
@@ -95,5 +99,11 @@ class Session(Base):
     end_time = Column(TIMESTAMP, nullable=True, default=None)
 
     user = relationship("User", back_populates="sessions")
-
     quiz = relationship("Quiz", back_populates="session")
+
+class TokenBlockList(Base):
+    __tablename__ = "token_blocklist"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    jti = Column(String(36), index=True, nullable=False)
+    created_at = Column(TIMESTAMP, server_default=func.current_timestamp())

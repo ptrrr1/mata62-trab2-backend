@@ -24,9 +24,11 @@ logger.info("Logging configurado para o container")
 app = FastAPI(title="Soccer-Quiz", root_path="/api/v1")
 
 # Routers are used to organize related views
-app.include_router(team_view.router)
-app.include_router(session_view.router)
-app.include_router(answer_view.router)
 app.include_router(auth_view.router)
+app.include_router(team_view.router)
 app.include_router(quiz_view.router)
 app.include_router(question_view.router)
+app.include_router(answer_view.router)
+app.include_router(session_view.router)
+
+

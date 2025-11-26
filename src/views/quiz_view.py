@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, HTTPException, status
 
 from controllers.quiz_controller import QuizController
-from custom_types.quiz_types import QuizType
+from custom_types.quiz_types import QuizRequest, QuizResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/quiz", tags=["Quizzes"])
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/quiz", tags=["Quizzes"])
 
 @router.get(
     "/qid/{id}",
-    response_model=list[QuizType],
+    response_model=list[QuizResponse],
     summary="Get all quizs for a given quiz",
 )
 def get_quiz_by_quiz(qid: int):
@@ -21,12 +21,26 @@ def get_quiz_by_quiz(qid: int):
         return []
 
     return [
-        QuizType(id=t.id, team_id=t.team_id, is_active=t.is_active) for t in response
+        QuizResponse(id=t.id, team_id=t.team_id, is_active=t.is_active) for t in response
     ]
 
+@router.get(
+    "/team/{team_id}",
+    response_model=list[QuizResponse],
+    summary="Get all quizs by Team ID"
+)
+def get_quiz_all_by_team(team_id: int):
+    response = QuizController.get_quiz_all_by_team_id(team_id)
+
+    if not response:
+        return []
+    
+    return [
+        QuizResponse(id=t.id, team_id=t.team_id, is_active=t.is_active) for t in response
+    ]
 
 @router.post("/", status_code=status.HTTP_201_CREATED, summary="Create an quiz")
-def create_quiz(quiz: QuizType):
+def create_quiz(quiz: QuizRequest):
     response = QuizController.create_quiz(quiz)
 
     if not response:
@@ -36,7 +50,7 @@ def create_quiz(quiz: QuizType):
 
 
 @router.patch("/id/{id}", summary="Update an quiz")
-def patch_quiz(id: int, quiz: QuizType):
+def patch_quiz(id: int, quiz: QuizRequest):
     response = QuizController.patch_quiz(id, quiz)
 
     if not response:

@@ -24,28 +24,16 @@ pip install --editable .
 docker-compose up --detach --build
 ```
 
-3. Executar o código.
-
-```bash
-fastapi dev src/main.py
-```
 -----------------------------
-Para rodar app
-docker compose up
-alembic revision --autogenerate -m "nova versão"
+## Carregar a versão do alembic
 
 
-Para gerar nova versão alembic
+```1. docker exec -it backend_app bash```
+
+```2. alembic upgrade head```
+
+
+## Para gerar nova versão alembic
+```bash
 docker exec -it backend_app bash
-
-<!--
-
-## Requesitos Implmentados
-
-1. ...
-
-## Alterações de Projeto
-
-1. [ADR??](link aqui)
-
--->
+alembic revision --autogenerate -m "nova versão"

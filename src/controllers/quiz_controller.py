@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlalchemy import select, insert, update
 
-from custom_types.quiz_types import QuizType
+from custom_types.quiz_types import QuizRequest, QuizResponse 
 from model import dbmanager
 from model.models import Quiz
 
@@ -36,9 +36,21 @@ class QuizController:
             logger.error(f"Failed to fetch Quiz: {e}")
 
             return None
+        
+    @staticmethod
+    def get_quiz_all_by_team_id(team_id: int) -> list[Quiz]:
+        s = dbmanager.session
+        try:
+            q = select(Quiz).where(
+                Quiz.team_id == team_id,
+            )
+            return s.scalars(q).all()
+        except Exception as e:
+            logger.error(f"Failed to fetch Quizs for team {team_id}: {e}")
+            return []
 
     @staticmethod
-    def create_quiz(t: QuizType) -> Optional[int]:
+    def create_quiz(t: QuizRequest) -> Optional[int]:
         s = dbmanager.session
         try:
             q = insert(Quiz).values(
