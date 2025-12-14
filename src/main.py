@@ -3,13 +3,14 @@ import os
 import sys
 from fastapi import FastAPI
 
-from views import (
+from src.views import (
     question_view,
     quiz_view,
     team_view,
     session_view,
     answer_view,
     auth_view,
+    run_quiz
 )
 logging.basicConfig(
     level=logging.DEBUG,  # Define o nível de log
@@ -30,5 +31,6 @@ app.include_router(quiz_view.router)
 app.include_router(question_view.router)
 app.include_router(answer_view.router)
 app.include_router(session_view.router)
+app.include_router(run_quiz.router)
 
 
