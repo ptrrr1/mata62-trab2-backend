@@ -47,7 +47,6 @@ def start_quiz(user_id, quiz_id):
     )
 
 
-
 @router.post(
     "/finish_quiz/{session_id}",
     response_model=int,
@@ -58,5 +57,3 @@ def finish_quiz(session_id):
     correct_answers = UserAnswerController.get_correct_answers_by_session(session_id)
     score = calculate_score(correct_answers)
     return score
-
-

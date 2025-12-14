@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 
+from fastapi import HTTPException
 from sqlalchemy import insert, null, select, update, func
 
 from custom_types.session_types import SessionStart
@@ -70,6 +71,13 @@ class SessionController:
     def end_session(id: int) -> bool:
         s = dbmanager.session
         try:
+            existing_end_session = select(Session.end_time).where(Session.id == id)
+            q=s.execute(existing_end_session).scalar()
+            print("teste end_session",q)
+            if q is not None:
+                print('null end_time')
+                logger.info(f"Session {id} already ended.")
+                raise HTTPException(status_code=400, detail="Session already ended.")
             q = (
                 update(Session)
                 .where(Session.id == id)
@@ -79,6 +87,8 @@ class SessionController:
             s.commit()
 
             return r.rowcount > 0
+        except HTTPException:
+            raise
         except Exception as e:
             logger.error(f"Failed to update {id}: {e}")
             s.rollback()
