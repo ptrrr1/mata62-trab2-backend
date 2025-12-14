@@ -1,11 +1,8 @@
 from src.controllers.answer_controller import AnswerController
 
 answer_controller=AnswerController()
-def calculate_score(answers, correct_answers):
-    score = 0
-    for question_id, answer in answers.items():
-        if question_id in correct_answers and answer == correct_answers[question_id]:
-            score += 1
+def calculate_score(correct_answers):
+    score=len(correct_answers)
     return score
 
 def check_answer(question_id, user_answer):

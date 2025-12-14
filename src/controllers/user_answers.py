@@ -76,3 +76,18 @@ class UserAnswerController:
         except Exception:
             logger.error("Erro ao buscar UserAnswers por sessão e quiz")
             return []
+
+    def get_correct_answers_by_session(session_id: int) -> list[UserAnswerModel]:
+        try:
+            db = dbmanager.session
+            correct_answers = (
+                db.query(UserAnswerModel)
+                .filter_by(session_id=session_id, is_correct=True)
+                .all()
+            )
+
+            return correct_answers
+
+        except Exception:
+            logger.error("Erro ao buscar respostas corretas por sessão")
+            return []
