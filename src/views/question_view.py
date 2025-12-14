@@ -14,8 +14,8 @@ router = APIRouter(prefix="/question", tags=["Questions"])
     response_model=list[QuestionResponse],
     summary="Get questions by id",
 )
-def get_question_by_id(qid: int):
-    response = QuestionController.get_question_id(qid)
+def get_question_by_id(id: int): 
+    response = QuestionController.get_question_id(id)
 
     if not response:
         return []

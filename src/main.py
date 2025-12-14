@@ -10,6 +10,7 @@ from views import (
     session_view,
     answer_view,
     auth_view,
+    game_view,
 )
 logging.basicConfig(
     level=logging.DEBUG,  # Define o nível de log
@@ -27,6 +28,7 @@ app = FastAPI(title="Soccer-Quiz", root_path="/api/v1")
 app.include_router(auth_view.router)
 app.include_router(team_view.router)
 app.include_router(quiz_view.router)
+app.include_router(game_view.router)
 app.include_router(question_view.router)
 app.include_router(answer_view.router)
 app.include_router(session_view.router)

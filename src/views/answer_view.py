@@ -21,7 +21,7 @@ def get_answers_by_question(qid: int):
     if not response:
         return []
 
-    return [AnswerResponse(id=t.id, text=t.text) for t in response]
+    return [AnswerResponse(id=t.id, text=t.text, is_correct=t.is_correct) for t in response]
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, summary="Create an answer")
