@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+from sqlalchemy.orm import selectinload
 
 from sqlalchemy import select, insert, update
 
@@ -20,6 +21,22 @@ class QuestionController:
             return s.scalars(q).all()
         except Exception as e:
             logger.error(f"Failed to fetch Questions: {e}")
+            return []
+        
+    @staticmethod
+    def get_full_quiz_by_team(team_id: int) -> list[Question]:
+        s = dbmanager.session
+        try:
+            q = (
+                select(Question)
+                .join(Quiz, Question.quiz_id == Quiz.id)
+                .where(Quiz.team_id == team_id, Question.is_active == True)
+                .options(selectinload(Question.answers))
+            )
+            
+            return s.scalars(q).all()
+        except Exception as e:
+            logger.error(f"Failed to fetch game data for team {team_id}: {e}")
             return []
 
     @staticmethod

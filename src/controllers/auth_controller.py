@@ -137,8 +137,6 @@ class AuthController:
         token = AuthController.generate_reset_token(email)
         if not token:
             return False
-        
-        reset_link = f"https://www.youtube.com/"
 
         subject = "Recuperação de Senha - Soccer Quiz"
         body = f"""
@@ -146,9 +144,9 @@ class AuthController:
             <body>
                 <h2>Olá!</h2>
                 <p>Recebemos uma solicitação para redefinir sua senha.</p>
-                <p>Clique no link abaixo para criar uma nova senha:</p>
-                <a href="{reset_link}" style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">Redefinir Minha Senha</a>
-                <p>Este link expira em 15 minutos.</p>
+                <p>Copie o token abaixo para redefinir sua senha no aplicativo:</p>
+                <p style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">{token}</p>
+                <p>Este token expira em 15 minutos.</p>
                 <p><small>Se não foi você, ignore este e-mail.</small></p>
             </body>
         </html>

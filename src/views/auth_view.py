@@ -36,7 +36,7 @@ def admin_access_required(payload: dict = Depends(get_current_user)):
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, summary="Register user")
 def register_user(user: UserCreate):
-    user_id = AuthController.create_user(username=user.username, email=user.email, password=user.password, role="user")
+    user_id = AuthController.create_user(username=user.username, email=user.email, password=user.password, role=user.role)
     if not user_id:
         raise HTTPException(status_code=400, detail="Username or Email already exists")
     return dict(message="User created successfully", user_id=user_id)
@@ -67,7 +67,7 @@ def invite_user(invite: InviteRequest, current_user: dict = Depends(get_current_
     # CORREÇÃO: Nome do método atualizado
     sent = AuthController.invite_email(invite.email, inviter_name)
     if not sent:
-         raise HTTPException(status_code=500, detail="Erro ao enviar convite. Tente novamente.")
+        raise HTTPException(status_code=500, detail="Erro ao enviar convite. Tente novamente.")
     return {"message": f"Convite enviado para {invite.email}"}
 
 @router.post("/reset-password", summary="Confirm new password")
