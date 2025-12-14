@@ -24,14 +24,14 @@ class QuizController:
             return []
 
     @staticmethod
-    def get_quiz_id(id: int) -> list:
+    def get_quiz_id(id: int) -> Quiz|None:
         s = dbmanager.session
         try:
             logger.info(f"printando{id}")
             q = select(Quiz).where(Quiz.id == id)
             logger.info(f"printandoq{q}")
 
-            return s.scalars(q).all()
+            return s.execute(q).scalars().first()
         except Exception as e:
             logger.error(f"Failed to fetch Quiz: {e}")
 

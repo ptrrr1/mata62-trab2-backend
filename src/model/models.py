@@ -38,7 +38,14 @@ class User(Base):
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
         return hashed.decode('utf-8') # Decodifica bytes para string
-
+class UserAnswer(Base):
+    __tablename__ = "user_answers"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    session_id = Column(Integer, ForeignKey("sessions.id"), nullable=False)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)
+    answer_id = Column(Integer, ForeignKey("answers.id"), nullable=False)
+    created_at = Column(TIMESTAMP, server_default=func.current_timestamp())
+    is_correct = Column(Boolean, nullable=False, default=False)
 
 class Team(Base):
     __tablename__ = "teams"

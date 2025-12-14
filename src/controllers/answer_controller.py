@@ -24,6 +24,21 @@ class AnswerController:
             return []
 
     @staticmethod
+    def get_correct_answer_by_question(id) -> Optional[Answer]:
+        s = dbmanager.session
+        try:
+            q = select(Answer).where(
+                Answer.question_id == id,
+                Answer.is_correct == True,
+            )
+
+            return s.scalar(q)
+        except Exception as e:
+            logger.error(f"Failed to fetch correct answer: {e}")
+
+            return None
+        
+    @staticmethod
     def create_answer(answer: AnswerRequest) -> Optional[int]:
         s = dbmanager.session
         try:

@@ -12,7 +12,7 @@ router = APIRouter(prefix="/quiz", tags=["Quizzes"])
 @router.get(
     "/qid/{id}",
     response_model=list[QuizResponse],
-    summary="Get all quizs for a given quiz",
+    summary="Get quiz by id",
 )
 def get_quiz_by_quiz(qid: int):
     response = QuizController.get_quiz_id(qid)
@@ -25,9 +25,22 @@ def get_quiz_by_quiz(qid: int):
     ]
 
 @router.get(
+    "/all", response_model=list[QuizResponse], summary="Get all quizzes"
+)
+def get_quiz_all():
+    response = QuizController.get_quiz_all()
+
+    if not response:
+        return []
+
+    return [
+        QuizResponse(id=t.id, team_id=t.team_id, is_active=t.is_active) for t in response
+    ]
+
+@router.get(
     "/team/{team_id}",
     response_model=list[QuizResponse],
-    summary="Get all quizs by Team ID"
+    summary="Get quiz by Team ID"
 )
 def get_quiz_all_by_team(team_id: int):
     response = QuizController.get_quiz_all_by_team_id(team_id)
