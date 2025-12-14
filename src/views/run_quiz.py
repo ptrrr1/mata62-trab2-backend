@@ -1,30 +1,26 @@
 import logging
-from typing import Union
-
 from fastapi import APIRouter, HTTPException
 from controllers.question_controller import QuestionController
-from custom_types.answer_types import AnswerResponse
 from src.custom_types.user_answers import UserAnswerResponse
-from src.custom_types.question_types import QuestionResponse
 from src.custom_types.start_quiz_unified_types import StartQuizUnifiedResponse
 from src.utils.utils import calculate_score, check_answer
 from src.controllers.session_controller import SessionController
 from controllers.quiz_controller import QuizController
 from src.controllers.user_answers import UserAnswerController
 from src.custom_types.user_answers import UserAnswerResponse
- 
+
 
 session = SessionController()
 quiz_service = QuizController()
 question_controller = QuestionController()
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/run_quiz", tags=["Run Quiz"])
+router = APIRouter(prefix="", tags=["Run Quiz"])
 
 
 @router.post(
-    "/{id}",
+    "/start_quiz/{user_id}/{quiz_id}",
     response_model=StartQuizUnifiedResponse,
-    summary="Get all questions for a given quiz",
+    summary="Start a quiz session for a user",
 )
 def start_quiz(user_id, quiz_id):
     session_obj = session.get_session_by_id_user_and_quiz(user_id, quiz_id)
@@ -51,29 +47,6 @@ def start_quiz(user_id, quiz_id):
     )
 
 
-@router.post(
-    "/submit_answer/{question_id}",
-    response_model=UserAnswerResponse,
-    summary="Get all questions for a given quiz",
-)
-def submit_answer(question_id, session_id, answer):
-    result = check_answer(question_id, int(answer))
-
-    print("result", result)
-    check_answer_alredy_exists = UserAnswerController.get_by_session_and_question(
-        session_id, question_id
-    )
-    if check_answer_alredy_exists:
-        raise HTTPException(
-            status_code=400, detail="Resposta já submetida para esta questão"
-        )
-    else:
-        response = UserAnswerController(
-            session_id, question_id, answer, is_correct=result
-        )
-    response = response.save()
-    return response
-
 
 @router.post(
     "/finish_quiz/{session_id}",
@@ -87,11 +60,3 @@ def finish_quiz(session_id):
     return score
 
 
-@router.get(
-    "get_all_answers/{session_id}",
-    response_model=list[UserAnswerResponse],
-    summary="Get all answers for a given session",
-)
-def get_all_answers(session_id, quiz_id):
-    answers = UserAnswerController.get_by_session_and_quiz(int(session_id), int(quiz_id))
-    return answers

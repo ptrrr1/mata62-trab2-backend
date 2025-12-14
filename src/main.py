@@ -10,8 +10,10 @@ from src.views import (
     session_view,
     answer_view,
     auth_view,
-    run_quiz
+    run_quiz,
+    user_answers_view,
 )
+ 
 logging.basicConfig(
     level=logging.DEBUG,  # Define o nível de log
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -32,5 +34,6 @@ app.include_router(question_view.router)
 app.include_router(answer_view.router)
 app.include_router(session_view.router)
 app.include_router(run_quiz.router)
+app.include_router(user_answers_view.router)
 
 
