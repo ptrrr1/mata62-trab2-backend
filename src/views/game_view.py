@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 
 from controllers.question_controller import QuestionController
-from src.custom_types.game_types import QuestionPlay, AnswerPlay
+from custom_types.game_types import QuestionPlay, AnswerPlay
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/game", tags=["Game Play"])
