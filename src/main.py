@@ -13,6 +13,7 @@ from src.views import (
     game_view,
     run_quiz,
     user_answers_view,
+    ranking_view
 )
  
 logging.basicConfig(
@@ -37,5 +38,5 @@ app.include_router(session_view.router)
 app.include_router(run_quiz.router)
 app.include_router(user_answers_view.router)
 app.include_router(game_view.router)
-
+app.include_router(ranking_view.router)
 
