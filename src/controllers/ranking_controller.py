@@ -2,7 +2,7 @@ import logging
 from sqlalchemy import select, func, desc, case
 
 from model import dbmanager
-from model.models import Session, UserAnswer, User
+from model.models import Session, UserAnswer, User, Question
 
 logger = logging.getLogger(__name__)
 
