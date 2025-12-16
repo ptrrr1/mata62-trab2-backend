@@ -13,19 +13,23 @@ def seed():
     print("🌱 Iniciando o Seeding do Banco de Dados...")
 
     try:
+        #**** Remove this comments if you want to delete old data ****
         # 1. Limpar dados antigos (Opcional - CUIDADO EM PRODUÇÃO)
-        print("🧹 Limpando dados antigos...")
-        session.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
-        session.execute(text("TRUNCATE TABLE user_answers;"))
-        session.execute(text("TRUNCATE TABLE sessions;"))
-        session.execute(text("TRUNCATE TABLE answers;"))
-        session.execute(text("TRUNCATE TABLE questions;"))
-        session.execute(text("TRUNCATE TABLE quizzes;"))
-        session.execute(text("TRUNCATE TABLE teams;"))
-        session.execute(text("TRUNCATE TABLE users;"))
-        session.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
-        session.commit()
-
+        # print("🧹 Limpando dados antigos...")
+        # session.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
+        # session.execute(text("TRUNCATE TABLE user_answers;"))
+        # session.execute(text("TRUNCATE TABLE sessions;"))
+        # session.execute(text("TRUNCATE TABLE answers;"))
+        # session.execute(text("TRUNCATE TABLE questions;"))
+        # session.execute(text("TRUNCATE TABLE quizzes;"))
+        # session.execute(text("TRUNCATE TABLE teams;"))
+        # session.execute(text("TRUNCATE TABLE users;"))
+        # session.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
+        # session.commit()
+        if session.query(User).first():
+            print("⚠️ Banco já populado. Seed ignorado.")
+            session.close()
+            return
         # 2. Criar Usuários
         print("👤 Criando Usuários...")
         admin = User(
