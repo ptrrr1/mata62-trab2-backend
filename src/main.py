@@ -2,7 +2,7 @@ import logging
 import sys
 from fastapi import FastAPI
 
-from views import (
+from src.views import (
     question_view,
     quiz_view,
     team_view,
