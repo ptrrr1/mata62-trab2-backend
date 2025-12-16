@@ -4,8 +4,8 @@ import os
 # Adiciona o diretório raiz ao path para conseguir importar 'src'
 sys.path.append(os.getcwd())
 
-from src.model import dbmanager
-from src.model.models import User, Team, Quiz, Question, Answer
+from model import dbmanager
+from model.models import User, Team, Quiz, Question, Answer
 from sqlalchemy import text
 
 def seed():

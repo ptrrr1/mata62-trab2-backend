@@ -2,8 +2,8 @@ import logging
 
 from fastapi import APIRouter, HTTPException, status
 
-from src.controllers.credit_controller import CreditController
-from src.custom_types.credit_types import CreditHistoryResponse, CreditHistoryCompleteResponse, CreditBuyRequest
+from controllers.credit_controller import CreditController
+from custom_types.credit_types import CreditHistoryResponse, CreditHistoryCompleteResponse, CreditBuyRequest
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/credits", tags=["Credits"])
