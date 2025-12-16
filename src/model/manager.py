@@ -1,6 +1,7 @@
 import logging
+import os
 
-from sqlalchemy import create_engine,text
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from model import models
@@ -12,13 +13,20 @@ Base = models.Base
 class DBManager:
     def __init__(self):
         logger.info("Initializing Database")
+        self._database_url = os.getenv("DATABASE_URL")
 
-        # TODO: Move to .env file
-        self._user = "soccer_u"
-        self._password = "soccer_p"
-        self._host = "db"
-        self._port = "3306"
-        self._database = "soccer_quiz"
+        if not self._database_url:
+            self._user = os.getenv("DB_USER", "soccer_u")
+            self._password = os.getenv("DB_PASSWORD", "soccer_p")
+            self._host = os.getenv("DB_HOST", "db")
+            self._port = os.getenv("DB_PORT", "3306")
+            self._database = os.getenv("DB_NAME", "soccer_quiz")
+        else:
+            self._user = None
+            self._password = None
+            self._host = None
+            self._port = None
+            self._database = None
 
         self._engine = None
         self._session_factory = None
@@ -26,12 +34,18 @@ class DBManager:
 
     def _init_engine(self):
         try:
-            conn = (
-                f"mysql+pymysql://{self._user}:{self._password}@"
-                f"{self._host}:{self._port}/{self._database}"
-            )
+            if self._database_url:
+                conn = self._database_url
+            else:
+                from urllib.parse import quote_plus
 
-            self._engine = create_engine(conn)
+                pwd = quote_plus(self._password) if self._password else ""
+                conn = (
+                    f"mysql+pymysql://{self._user}:{pwd}@"
+                    f"{self._host}:{self._port}/{self._database}"
+                )
+
+            self._engine = create_engine(conn, pool_pre_ping=True)
             self._session_factory = sessionmaker(
                 bind=self._engine, autocommit=False, autoflush=False
             )

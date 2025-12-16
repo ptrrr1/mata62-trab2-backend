@@ -28,6 +28,8 @@ services:
       - "3306:3306"
     networks:
       - backend_network
+    volumes:
+      - db_data:/var/lib/mysql
 
   backend:
     build:
@@ -52,3 +54,5 @@ services:
 networks:
   backend_network:
     driver: bridge
+volumes:
+  db_data:

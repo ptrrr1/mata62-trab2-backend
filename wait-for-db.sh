@@ -17,5 +17,8 @@ mysql -h $DB_HOST -u $DB_ROOT -p$DB_ROOT_PASS -e "CREATE DATABASE IF NOT EXISTS 
 echo "🚀 Rodando migrações Alembic..."
 alembic upgrade head
 
+echo "🌱 Populando banco se necessário..."
+python src/scripts/seed_db.py
+
 echo "🚀 Iniciando FastAPI..."
 uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
