@@ -44,7 +44,7 @@ services:
     networks:
       - backend_network
     ports:
-    - "8000:8000"
+    - "8009:8000"
     environment:
       - ENV=development
       - DEBUG=true
