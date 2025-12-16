@@ -3,7 +3,7 @@ import logging
 
 from fastapi import logger
 from model import dbmanager
-from src.model.models import Session, UserAnswer as UserAnswerModel
+from model.models import Session, UserAnswer as UserAnswerModel
 
 
 logger = logging.getLogger(__name__)

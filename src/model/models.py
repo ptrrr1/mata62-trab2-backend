@@ -15,6 +15,7 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -24,20 +25,23 @@ class User(Base):
     role = Column(String(50), nullable=False, server_default="user")
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, nullable=False, server_default=true())
+    credits = Column(Integer, nullable=False, server_default="0")
 
     sessions = relationship("Session", back_populates="user")
+    credits_registry = relationship("CreditsRegistry")
 
     def verify_password(self, password: str) -> bool:
         return bcrypt.checkpw(
-            password.encode('utf-8'), 
-            self.hashed_password.encode('utf-8')
+            password.encode("utf-8"), self.hashed_password.encode("utf-8")
         )
-    
+
     @staticmethod
     def hash_password(password: str) -> str:
         salt = bcrypt.gensalt()
-        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-        return hashed.decode('utf-8') # Decodifica bytes para string
+        hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
+        return hashed.decode("utf-8")  # Decodifica bytes para string
+
+
 class UserAnswer(Base):
     __tablename__ = "user_answers"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -46,6 +50,7 @@ class UserAnswer(Base):
     answer_id = Column(Integer, ForeignKey("answers.id"), nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.current_timestamp())
     is_correct = Column(Boolean, nullable=False, default=False)
+
 
 class Team(Base):
     __tablename__ = "teams"
@@ -108,9 +113,21 @@ class Session(Base):
     user = relationship("User", back_populates="sessions")
     quiz = relationship("Quiz", back_populates="session")
 
+
 class TokenBlockList(Base):
     __tablename__ = "token_blocklist"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     jti = Column(String(36), index=True, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.current_timestamp())
+
+
+class CreditsRegistry(Base):
+    __tablename__ = "credits_registry"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    amount = Column(Integer, nullable=False)
+    created_at = Column(
+        TIMESTAMP, nullable=False, server_default=func.current_timestamp()
+    )
