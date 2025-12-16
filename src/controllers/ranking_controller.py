@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import select, func, desc, case
+from sqlalchemy import select, func, desc, case, text
 
 from model import dbmanager
 from model.models import Session, UserAnswer, User, Question
@@ -11,7 +11,6 @@ class RankingController:
     @staticmethod
     def get_quiz_ranking(quiz_id: int):
         s = dbmanager.session
-
         logger.info(f"Gerando ranking para Quiz ID: {quiz_id}")
 
         stmt = (
@@ -19,7 +18,6 @@ class RankingController:
                 User.username,
                 Session.start_time,
                 Session.end_time,
-
                 func.sum(
                     case(
                         (UserAnswer.is_correct == True, 1),
@@ -44,7 +42,6 @@ class RankingController:
         for row in result:
             username, start, end, score = row
             
-            # Garante que score seja um número (pode vir None ou Decimal do banco)
             final_score = int(score) if score else 0
 
             duration = 0.0
@@ -78,7 +75,7 @@ class RankingController:
         )
 
         return s.execute(stmt).all()
-    
+
     @staticmethod
     def get_questions_dashboard(quiz_id: int = None):
         s = dbmanager.session
@@ -90,9 +87,9 @@ class RankingController:
                     func.count(UserAnswer.id).label("total_attempts"),
                     func.sum(case((UserAnswer.is_correct == True, 1), else_=0)).label("correct_count")
                 )
-                .join(UserAnswer, Question.id == UserAnswer.question_id)
+                .outerjoin(UserAnswer, Question.id == UserAnswer.question_id)
                 .group_by(Question.id, Question.text)
-                .order_by(desc("total_attempts")) 
+                .order_by(desc("total_attempts"))
             )
             
             if quiz_id:
@@ -103,7 +100,9 @@ class RankingController:
             dashboard_data = []
             for row in results:
                 q_id, text, total, correct = row
-                correct = correct or 0 # Tratar None
+                
+                total = total or 0
+                correct = correct or 0
                 accuracy = (correct / total * 100) if total > 0 else 0.0
                 
                 dashboard_data.append({
@@ -118,5 +117,5 @@ class RankingController:
             return dashboard_data
 
         except Exception as e:
-            logger.error(f"Erro no dashboard de questões: {e}")
+            logger.error(f"Erro no dashboard de questões: {e}") 
             return []
