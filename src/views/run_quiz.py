@@ -1,13 +1,13 @@
 import logging
 from fastapi import APIRouter, HTTPException
 from controllers.question_controller import QuestionController
-from src.custom_types.user_answers import UserAnswerResponse
-from src.custom_types.start_quiz_unified_types import StartQuizUnifiedResponse
-from src.utils.utils import calculate_score, check_answer
-from src.controllers.session_controller import SessionController
+from custom_types.user_answers import UserAnswerResponse
+from custom_types.start_quiz_unified_types import StartQuizUnifiedResponse
+from utils.utils import calculate_score, check_answer
+from controllers.session_controller import SessionController
 from controllers.quiz_controller import QuizController
-from src.controllers.user_answers import UserAnswerController
-from src.custom_types.user_answers import UserAnswerResponse
+from controllers.user_answers import UserAnswerController
+from custom_types.user_answers import UserAnswerResponse
 
 
 session = SessionController()

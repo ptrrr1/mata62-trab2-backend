@@ -1,4 +1,4 @@
-from src.controllers.answer_controller import AnswerController
+from controllers.answer_controller import AnswerController
 
 answer_controller=AnswerController()
 def calculate_score(correct_answers):

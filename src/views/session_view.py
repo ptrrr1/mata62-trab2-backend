@@ -34,12 +34,12 @@ def get_session_all(current_user: dict = Depends(admin_access_required)):
 @router.post("/", status_code=status.HTTP_201_CREATED, summary="Start a session")
 def start_session(session: SessionStart, current_user: dict = Depends(get_current_user)):
     user_id = current_user['id']
-    response = SessionController.start_session(session, user_id)
+    response = SessionController.start_session(session.quiz_id, user_id)
 
     if not response:
         raise HTTPException(status_code=400, detail="Failed to start session")
 
-    return dict(message="Session started successfully", id=response)
+    return dict(message="Session started successfully", id=response.id)
 
 
 @router.patch("/id/{id}", summary="End a session")
