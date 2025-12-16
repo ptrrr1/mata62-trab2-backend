@@ -10,4 +10,6 @@ RUN apt-get update && \
 
 RUN pip install --no-cache-dir .
 
-CMD []
+RUN chmod +x /app/wait-for-db.sh /app/start.sh
+
+CMD ["sh", "/app/start.sh"]
