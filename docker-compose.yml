@@ -28,6 +28,8 @@ services:
       - "3306:3306"
     networks:
       - backend_network
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   backend:
     build:
@@ -40,11 +42,11 @@ services:
     working_dir: /app
     depends_on:
       - db
-    command: sh /app/wait-for-db.sh     # ⬅️ Agora ele espera o MySQL
+    command: sh /app/wait-for-db.sh
     networks:
       - backend_network
     ports:
-    - "8000:8000"
+      - "8009:8000"
     environment:
       - ENV=development
       - DEBUG=true
@@ -52,3 +54,6 @@ services:
 networks:
   backend_network:
     driver: bridge
+
+volumes:
+  mysql_data:
