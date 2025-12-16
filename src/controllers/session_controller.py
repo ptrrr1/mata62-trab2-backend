@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+from datetime import datetime
 
 from fastapi import HTTPException
 from sqlalchemy import insert, null, select, update, func
@@ -40,7 +41,7 @@ class SessionController:
         s = dbmanager.session
         print('teste controller get_session_by_id_user_and_quiz',user_id,quiz_id)
         try:
-            q = select(Session).where(Session.user_id == user_id and Session.quiz_id == quiz_id)
+            q = select(Session).where(Session.user_id == user_id, Session.quiz_id == quiz_id)
 
             return s.scalar(q)
         except Exception as e:
@@ -81,7 +82,7 @@ class SessionController:
             q = (
                 update(Session)
                 .where(Session.id == id)
-                .values(end_time=func.current_timestamp())
+                .values(end_time=datetime.now()) 
             )
             r = s.execute(q)
             s.commit()

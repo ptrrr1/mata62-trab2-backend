@@ -12,6 +12,7 @@ from views import (
     game_view,
     run_quiz,
     user_answers_view,
+    ranking_view,
     credit_view
 )
  
@@ -37,5 +38,6 @@ app.include_router(session_view.router)
 app.include_router(run_quiz.router)
 app.include_router(user_answers_view.router)
 app.include_router(game_view.router)
+app.include_router(ranking_view.router)
 app.include_router(credit_view.router)
 
