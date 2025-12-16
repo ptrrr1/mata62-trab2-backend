@@ -11,7 +11,7 @@ router = APIRouter(prefix="/answer", tags=["Answers"])
 
 
 @router.get(
-    "/qid/{id}",
+    "/qid/{qid}",
     response_model=list[AnswerResponse],
     summary="Get all answers for a given question",
 )
